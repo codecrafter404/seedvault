@@ -8,6 +8,8 @@
 androidGradlePlugin = "8.10.1"
 protobufPlugin = "0.9.5"
 ktlint = "12.2.0"
+shadow = "8.3.6"
+clikt = "4.4.0"
 
 # Android SDK versions
 compileSdk = "36"
@@ -105,6 +107,8 @@ thirdegg-lint-rules = { module = "com.github.thirdegg:lint-rules", version.ref =
 
 # Google dependencies
 google-tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
+google-tink = { module = "com.google.crypto.tink:tink", version.ref = "tink" }
+clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 google-protobuf-javalite = { module = 'com.google.protobuf:protobuf-javalite', version.ref = 'protobuf' }
 google-protobuf-kotlin-lite = { module = 'com.google.protobuf:protobuf-kotlin-lite', version.ref = 'protobuf' }
 google-material = { module = 'com.google.android.material:material', version.ref = 'material' }
@@ -168,3 +172,4 @@ jetbrains-dokka  = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 jetbrains-kotlin-android  = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jlleitschuh-ktlint  = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
