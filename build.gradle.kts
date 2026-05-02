@@ -14,7 +14,6 @@ plugins {
     alias(libs.plugins.jetbrains.dokka) apply false
     alias(libs.plugins.jlleitschuh.ktlint) apply false
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
-    alias(libs.plugins.shadow) apply false
 }
 
 val aospLibs by extra {
@@ -37,7 +36,7 @@ subprojects {
 
         configure<KtlintExtension> {
             version.set("1.6.0")
-            android.set(path != ":seedvault-cli")
+            android.set(true)
             enableExperimentalRules.set(false)
             verbose.set(true)
         }

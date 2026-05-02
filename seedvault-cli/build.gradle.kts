@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import com.google.protobuf.gradle.id
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.google.protobuf)
-    alias(libs.plugins.shadow)
+    kotlin("jvm") version "2.1.10"
+    id("com.google.protobuf") version "0.9.5"
+    id("io.github.goooler.shadow") version "8.1.3"
     application
 }
 
@@ -26,12 +25,13 @@ application {
     mainClass.set("org.calyxos.seedvault.cli.MainKt")
 }
 
+// Share proto definitions from the parent project without compiling the Android modules.
+// We regenerate the proto classes inside this standalone project using the same .proto files.
 sourceSets {
     main {
         proto {
-            // Reuse proto definitions from app and storage:lib without depending on those modules
-            srcDir("${rootProject.projectDir}/app/src/main/proto")
-            srcDir("${rootProject.projectDir}/storage/lib/src/main/proto")
+            srcDir("${projectDir.parent}/app/src/main/proto")
+            srcDir("${projectDir.parent}/storage/lib/src/main/proto")
         }
     }
 }
@@ -39,19 +39,15 @@ sourceSets {
 protobuf {
     protoc {
         artifact = if ("aarch64" == System.getProperty("os.arch")) {
-            // mac m1
-            "com.google.protobuf:protoc:${libs.versions.protobuf.get()}:osx-x86_64"
+            "com.google.protobuf:protoc:3.21.12:osx-x86_64"
         } else {
-            "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
+            "com.google.protobuf:protoc:3.21.12"
         }
     }
     generateProtoTasks {
         all().forEach { task ->
-            task.plugins {
-                id("java") {
-                    option("lite")
-                }
-                id("kotlin") {
+            task.builtins {
+                named("java") {
                     option("lite")
                 }
             }
@@ -60,38 +56,43 @@ protobuf {
 }
 
 dependencies {
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlin.stdlib.jdk8)
-    implementation(libs.kotlinx.coroutines.core.jvm)
+    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")
 
-    // Crypto: use the non-Android tink variant (pure JVM, same AesGcmHkdfStreaming API)
-    implementation(libs.google.tink)
+    // Crypto: non-Android Tink variant (pure JVM, same AesGcmHkdfStreaming API)
+    implementation("com.google.crypto.tink:tink:1.17.0")
 
     // Protobuf lite runtime
-    implementation(libs.google.protobuf.javalite)
-    implementation(
-        fileTree("${rootProject.rootDir}/libs").include("protobuf-kotlin-lite-*.jar")
-    )
+    implementation("com.google.protobuf:protobuf-javalite:3.21.12")
+    implementation("com.google.protobuf:protobuf-kotlin-lite:3.21.12")
 
     // Zstd decompression (fat JAR with native libs for all platforms from Maven Central)
-    implementation(libs.zstd.jni)
+    implementation("com.github.luben:zstd-jni:1.5.7-3")
 
     // BIP39 mnemonic support (same JAR the app uses)
-    implementation(fileTree("${rootProject.rootDir}/libs").include("kotlin-bip39-jvm-*.jar"))
+    implementation(
+        fileTree("${projectDir.parent}/libs") {
+            include("kotlin-bip39-jvm-*.jar")
+        }
+    )
 
     // CLI argument parsing
-    implementation(libs.clikt)
+    implementation("com.github.ajalt.clikt:clikt:4.4.0")
 
     // Logging
-    implementation(libs.kotlin.logging)
-    implementation(libs.slf4j.api)
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
+    implementation("org.slf4j:slf4j-api:2.0.16")
+
+    // Runtime: send SLF4J output to stderr
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
 
     testImplementation(kotlin("test"))
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.mockk)
-    testImplementation(libs.slf4j.simple)
-    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
+    testImplementation("io.mockk:mockk:1.14.2")
+    testImplementation("org.slf4j:slf4j-simple:2.0.16")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 }
 
 tasks.withType<Test>().configureEach {
