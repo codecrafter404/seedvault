@@ -39,9 +39,9 @@ sourceSets {
 protobuf {
     protoc {
         artifact = if ("aarch64" == System.getProperty("os.arch")) {
-            "com.google.protobuf:protoc:3.21.12:osx-x86_64"
+            "com.google.protobuf:protoc:3.25.5:osx-x86_64"
         } else {
-            "com.google.protobuf:protoc:3.21.12"
+            "com.google.protobuf:protoc:3.25.5"
         }
     }
     generateProtoTasks {
@@ -64,8 +64,8 @@ dependencies {
     implementation("com.google.crypto.tink:tink:1.17.0")
 
     // Protobuf lite runtime
-    implementation("com.google.protobuf:protobuf-javalite:3.21.12")
-    implementation("com.google.protobuf:protobuf-kotlin-lite:3.21.12")
+    implementation("com.google.protobuf:protobuf-javalite:3.25.5")
+    implementation("com.google.protobuf:protobuf-kotlin-lite:3.25.5")
 
     // Zstd decompression (fat JAR with native libs for all platforms from Maven Central)
     implementation("com.github.luben:zstd-jni:1.5.7-3")
